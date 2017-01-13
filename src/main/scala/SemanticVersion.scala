@@ -35,26 +35,28 @@ class SemanticVersion(val versionString: String) extends Ordered[SemanticVersion
   }
 
   def compare(that: SemanticVersion) = {
-    if (this == that) {
-      0
-    } else if (this.majorVersion > that.majorVersion) {
-      1
-    } else if (this.majorVersion == that.majorVersion) {
-      if (this.minorVersion > that.minorVersion) {
+    val majorVersionDiff = this.majorVersion.toInt - that.majorVersion.toInt
+    val minorVersionDiff = this.minorVersion.toInt - that.minorVersion.toInt
+    val patchVersionDiff = this.patchVersion.toInt - that.patchVersion.toInt
+    val prereleaseVersionDiff =
+      if (this.prerelease.isEmpty && !that.prerelease.isEmpty) {
         1
-      } else if (this.minorVersion == that.minorVersion) {
-        if (this.patchVersion > that.patchVersion) {
-          1
-        } else if (this.patchVersion == that.patchVersion && this.prerelease > that.prerelease) {
-          1
-        } else {
-          -1 // major, minor, patch version are same, prerelease is less
-        }
+      } else if (!this.prerelease.isEmpty && that.prerelease.isEmpty) {
+        -1
       } else {
-        -1 // major version is same, and minor version is less
+        this.prerelease.compare(that.prerelease)
       }
+
+    if (this.versionStringWithoutBuildMetadata == that.versionStringWithoutBuildMetadata) {
+      0
+    } else if (majorVersionDiff != 0) {
+      majorVersionDiff
+    } else if (minorVersionDiff != 0) {
+      minorVersionDiff
+    } else if (patchVersionDiff != 0) {
+      patchVersionDiff
     } else {
-      -1 // major version is less
+      prereleaseVersionDiff
     }
   }
 }
