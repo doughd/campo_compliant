@@ -1,6 +1,8 @@
 package compliant
 
-class SemanticVersionSpec extends CompliantSpecBase {
+import org.scalatest.prop.PropertyChecks
+
+class SemanticVersionSpec extends CompliantSpecBase with PropertyChecks {
   "A SemanticVersion" when {
     "valid" should {
       "contain a major version" in {
@@ -46,88 +48,49 @@ class SemanticVersionSpec extends CompliantSpecBase {
     }
 
     "comparing versions" should {
-      // equality
-      "give numeric identifiers lower precedence" in {
-        val numericIdentiferVersion = new SemanticVersion("1.1.0-20160605")
-        val nonNumericIdentifierVersion = new SemanticVersion("1.1.0-alpha")
-        val resultOne = numericIdentiferVersion < nonNumericIdentifierVersion
-        assert(resultOne == true)
 
-        val resultTwo = nonNumericIdentifierVersion < numericIdentiferVersion
-        assert(resultTwo == false)
+      val equal = Table[String, String](
+        ("a", "b"),
+        ("1.0.0", "1.0.0"),
+        ("0.1.0", "0.1.0"),
+        ("0.0.1", "0.0.1"),
+        ("1.0.0+meta1", "1.0.0+meta2")  // build metadata disregarded for ordering
+      )
+
+      "properly identify equal versions as equal" in {
+        forAll(equal) { (a, b) =>
+          val versionA = new SemanticVersion(a)
+          val versionB = new SemanticVersion(b)
+          assert(versionA == versionB)
+        }
       }
 
-      // greater than
-      "properly determine greater than for simple versions" in {
-        val lesserVersion = new SemanticVersion("1.0.0")
-        val greaterVersion = new SemanticVersion("2.0.0")
-        val resultOne = greaterVersion > lesserVersion
-        assert(resultOne == true)
+      val inequal = Table[String, String](
+        ("lesser", "greater"),
+        ("1.0.0", "2.0.0"),
+        ("1.0.0", "10.0.0"),
+        // TODO: ("2.0.0", "10.0.0"),
+        ("0.1.0", "0.2.0"),
+        ("0.1.0", "0.10.0"),
+        // TODO: ("0.2.0", "0.10.0"),
+        ("0.0.1", "0.0.2"),
+        ("0.0.1", "0.0.10"),
+        // TODO: ("0.0.2", "0.0.10"),
+        ("1.0.0-alpha", "1.0.0-beta"),   // pre-release versions
+        ("1.1.0-20160605", "1.1.0-alpha"),  // numeric identifiers have lower precedence
+        ("1.0.0-20170109", "1.0.0-20170110")
+        // TODO: ("1.0.0-2", "1.0.0-10")
+      )
 
-        val resultTwo = lesserVersion > greaterVersion
-        assert(resultTwo == false)
+      "properly determine ordering for inequal versions" in {
+        forAll(inequal) { (lesser, greater) =>
+          val lesserVersion = new SemanticVersion(lesser)
+          val greaterVersion = new SemanticVersion(greater)
+          assert(lesserVersion < greaterVersion)
+          assert(greaterVersion > lesserVersion)
+        }
       }
 
-      "properly determine greater than for simple versions with metadata" in {
-        val lesserVersion = new SemanticVersion("1.0.0+meta1")
-        val greaterVersion = new SemanticVersion("1.0.0+meta2")
-        val resultOne = greaterVersion > lesserVersion
-        assert(resultOne == false)
-
-        val resultTwo = lesserVersion > greaterVersion
-        assert(resultTwo == false)
-      }
-
-      "properly determine greater than for prerelease versions" in {
-        val lesserVersion = new SemanticVersion("1.0.0-alpha")
-        val greaterVersion = new SemanticVersion("1.0.0-beta")
-        val resultOne = greaterVersion > lesserVersion
-        assert(resultOne == true)
-
-        val resultTwo = lesserVersion > greaterVersion
-        assert(resultTwo == false)
-      }
-
-      "property determine greater than for prerelease versions with dates" in {
-        val lesserVersion = new SemanticVersion("1.0.0-20170109")
-        val greaterVersion = new SemanticVersion("1.0.0-20170110")
-        val resultOne = greaterVersion > lesserVersion
-        assert(resultOne == true)
-
-        val resultTwo = lesserVersion > greaterVersion
-        assert(resultTwo == false)
-      }
-
-      // Less than
-      "properly determine less than for simple versions" in {
-        val lesserVersion = new SemanticVersion("1.0.0")
-        val greaterVersion = new SemanticVersion("2.0.0")
-        val resultOne = lesserVersion < greaterVersion
-        assert(resultOne == true)
-
-        val resultTwo = greaterVersion < lesserVersion
-        assert(resultTwo == false)
-      }
-
-      "properly determine less than for simple versions with metadata" in {
-        val lesserVersion = new SemanticVersion("1.0.0+meta1")
-        val greaterVersion = new SemanticVersion("1.0.0+meta2")
-        val resultOne = lesserVersion < greaterVersion
-        assert(resultOne == false)
-
-        val resultTwo = greaterVersion < lesserVersion
-        assert(resultTwo == false)
-      }
-
-      "properly determine less than for prerelease versions" in {
-        val lesserVersion = new SemanticVersion("1.0.0-alpha")
-        val greaterVersion = new SemanticVersion("1.0.0-beta")
-        val resultOne = lesserVersion < greaterVersion
-        assert(resultOne == true)
-
-        val resultTwo = greaterVersion < lesserVersion
-        assert(resultTwo == false)
-      }
     }
   }
 }
