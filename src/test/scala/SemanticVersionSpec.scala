@@ -69,17 +69,17 @@ class SemanticVersionSpec extends CompliantSpecBase with PropertyChecks {
         ("lesser", "greater"),
         ("1.0.0", "2.0.0"),
         ("1.0.0", "10.0.0"),
-        // TODO: ("2.0.0", "10.0.0"),
+        ("2.0.0", "10.0.0"),
         ("0.1.0", "0.2.0"),
         ("0.1.0", "0.10.0"),
-        // TODO: ("0.2.0", "0.10.0"),
+        ("0.2.0", "0.10.0"),
         ("0.0.1", "0.0.2"),
         ("0.0.1", "0.0.10"),
-        // TODO: ("0.0.2", "0.0.10"),
+        ("0.0.2", "0.0.10"),
         ("1.0.0-alpha", "1.0.0-beta"),   // pre-release versions
         ("1.1.0-20160605", "1.1.0-alpha"),  // numeric identifiers have lower precedence
-        ("1.0.0-20170109", "1.0.0-20170110")
-        // TODO: ("1.0.0-2", "1.0.0-10")
+        ("1.0.0-20170109", "1.0.0-20170110"),
+        ("1.0.0-2", "1.0.0-10")
       )
 
       "properly determine ordering for inequal versions" in {
