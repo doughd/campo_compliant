@@ -1,7 +1,7 @@
 lazy val root = (project in file(".")).
   settings(
     name := "compliant",
-    version := "0.0.1",
+    version := "0.1.0",
     scalaVersion := "2.11.8",
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" % "3.0.1" % Test,
