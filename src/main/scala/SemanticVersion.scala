@@ -69,13 +69,10 @@ class SemanticVersion(val versionString: String) extends Ordered[SemanticVersion
         val currentThis = thisArray(currentIndex)
         val currentThat = thatArray(currentIndex)
 
-        // TODO: Find a way to do this that doesn't abuse
-        // exceptions
-        try {
+        if (Chunkify.isAllDigits(currentThis) && Chunkify.isAllDigits(currentThat)) {
           currentDiff = currentThis.toInt.compare(currentThat.toInt)
-        } catch {
-          case e: Exception =>
-            currentDiff = currentThis.compare(currentThat)
+        } else {
+          currentDiff = currentThis.compare(currentThat)
         }
 
         currentIndex = currentIndex + 1
@@ -144,6 +141,10 @@ object Chunkify {
     }  // end string.map
 
     chunks.toList
+  }
+
+  def isAllDigits(s: String) = {
+    s.length == s.filter(_.isDigit).length
   }
 
   def isDigit(s: String) = {
