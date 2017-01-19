@@ -7,6 +7,15 @@ object SemanticVersion {
 
   val re: Regex = """(\d+)\.(\d+)\.(\d+)(-([^+]+))?(\+(.+))?""".r
 
+  def apply(versionString: String): SemanticVersion = {
+    new SemanticVersion(versionString)
+  }
+}
+
+object Version {
+  def apply(versionString: String): SemanticVersion = {
+    new SemanticVersion(versionString)
+  }
 }
 
 class SemanticVersion(val versionString: String) extends Ordered[SemanticVersion] {
