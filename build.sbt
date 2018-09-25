@@ -9,3 +9,6 @@ lazy val root = (project in file(".")).
       "org.scalacheck" %% "scalacheck" % "1.13.4" % Test
     )
   )
+
+// Include short exceptions on error
+testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oS")
